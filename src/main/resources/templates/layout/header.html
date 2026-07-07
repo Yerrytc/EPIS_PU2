@@ -1,0 +1,19 @@
+﻿<header class="topbar" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="header">
+    <div class="brand">
+        <strong>EPIS</strong>
+        <span>Portal institucional</span>
+    </div>
+    <div class="topbar-actions">
+        <button type="button" class="theme-toggle ui-toggle" data-ui-action="contrast" title="Alternar modo claro/oscuro">Modo oscuro</button>
+        <div class="user-chip" th:if="${usuarioActual != null}">
+            <span th:text="${usuarioActual.nombreCompleto}">Usuario</span>
+            <span class="badge badge-role" th:text="${usuarioActual.rolEtiqueta}">Rol</span>
+        </div>
+        <div class="user-chip" th:if="${usuarioActual == null}" sec:authorize="isAuthenticated()">
+            <span sec:authentication="name">Usuario</span>
+        </div>
+    </div>
+</header>
+
+
+

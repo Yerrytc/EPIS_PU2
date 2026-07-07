@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${modo == 'editar'} ? 'Editar intervencion' : 'Nueva intervencion'">Intervencion - SISTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="theme-sista">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">SISTA</span>
+                <h1 th:text="${modo == 'editar'} ? 'Editar intervencion' : 'Nueva intervencion'">Intervencion</h1>
+                <p>Registro de casos de intervencion academica.</p>
+            </div>
+            <a class="btn" th:href="@{/sista/intervenciones}" style="background:rgba(255,255,255,.15);color:white">↩ Volver</a>
+        </section>
+
+        <div th:if="${error}" class="message message-error" th:text="${error}"></div>
+
+        <div class="card">
+            <form class="form" th:action="@{/sista/intervenciones/guardar}" method="post">
+                <input type="hidden" name="idIntervencion" th:if="${intervencion != null and intervencion['id_intervencion'] != null}" th:value="${intervencion['id_intervencion']}">
+                <div class="grid grid-2">
+                    <div><label>Estudiante</label><select name="codigoEstudiante" required><option th:each="e : ${estudiantes}" th:value="${e['codigo']}" th:text="${e['nombres'] + ' ' + e['apellidos'] + ' (' + e['codigo'] + ')'}" th:selected="${intervencion != null and intervencion['codigo_estudiante'] == e['codigo']}"></option></select></div>
+                    <div><label>Tipo</label><select name="idTipo" required><option th:each="t : ${tipos}" th:value="${t['id_tipo']}" th:text="${t['nombre']}" th:selected="${intervencion != null and intervencion['id_tipo'] == t['id_tipo']}"></option></select></div>
+                </div>
+                <div class="grid grid-2">
+                    <div><label>Fecha</label><input type="date" name="fecha" th:value="${intervencion != null ? intervencion['fecha'] : ''}" required></div>
+                    <div><label>Responsable</label><input name="responsable" th:value="${intervencion != null ? intervencion['responsable'] : ''}" required minlength="3" maxlength="120" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{3,120}" title="Solo letras y espacios"></div>
+                </div>
+                <div><label>Motivo</label><textarea name="motivo" required minlength="10" maxlength="1000" th:text="${intervencion != null ? intervencion['motivo'] : ''}"></textarea></div>
+                <div class="grid grid-2">
+                    <div><label>Estado</label><select name="estado"><option th:each="e : ${estados}" th:value="${e['codigo']}" th:text="${e['nombre']}" th:selected="${intervencion != null and intervencion['estado'] == e['codigo']}"></option></select></div>
+                    <div><label>Derivacion</label><input name="derivacion" th:value="${intervencion != null ? intervencion['derivacion'] : ''}" maxlength="120"></div>
+                </div>
+                <div><label>Observaciones</label><textarea name="observaciones" maxlength="1000" th:text="${intervencion != null ? intervencion['observaciones'] : ''}"></textarea></div>
+                <div class="actions">
+                    <button class="btn" type="submit">Guardar</button>
+                    <a class="btn btn-secondary" th:href="@{/sista/intervenciones}">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

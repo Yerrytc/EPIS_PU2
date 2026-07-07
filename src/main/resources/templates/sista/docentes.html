@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docentes - SISTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="theme-sista">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">SISTA</span>
+                <h1>Control de docentes</h1>
+                <p>Filtra por semestre y curso para ver docentes y estudiantes a cargo.</p>
+            </div>
+            <a class="btn" th:href="@{/sista}" style="background:rgba(255,255,255,.15);color:white">↩ Volver</a>
+        </section>
+
+        <form class="sista-toolbar" th:action="@{/sista/docentes}" method="get">
+            <div>
+                <label>Semestre</label>
+                <select name="idCiclo" onchange="this.form.submit()">
+                    <option value="">-- Seleccionar Ciclo --</option>
+                    <option th:each="c : ${ciclos}" th:value="${c.id_ciclo}" th:selected="${idCiclo != null and idCiclo == c.id_ciclo}" th:text="${c.nombre_ciclo}"></option>
+                </select>
+            </div>
+            <div>
+                <label>Curso</label>
+                <select name="idCurso">
+                    <option value="">-- Seleccionar Curso --</option>
+                    <option th:each="c : ${cursos}" th:value="${c.id_curso}" th:selected="${idCurso != null and idCurso == c.id_curso}" th:text="${c.nombre_curso}"></option>
+                </select>
+            </div>
+            <div class="actions" style="align-self:end">
+                <button class="btn" type="submit">Filtrar</button>
+                <a class="btn btn-secondary" th:href="@{/sista/docentes}">Refrescar</a>
+            </div>
+        </form>
+
+        <section class="sista-ficha-grid">
+            <div class="card" style="padding:0;overflow-x:auto">
+                <h2 style="padding:12px 14px;margin:0;border-bottom:1px solid var(--line)">‍ Docentes</h2>
+                <table>
+                    <thead><tr><th>ID</th><th>Codigo</th><th>Nombres</th><th>Apellidos</th><th>Telefono</th><th>Email</th><th>Especialidad</th><th>Accion</th></tr></thead>
+                    <tbody>
+                    <tr th:each="d : ${docentes}">
+                        <td th:text="${d.id_docente}"></td>
+                        <td th:text="${d.codigo}"></td>
+                        <td th:text="${d.nombres}"></td>
+                        <td th:text="${d.apellidos}"></td>
+                        <td th:text="${d.telefono}"></td>
+                        <td th:text="${d.email}"></td>
+                        <td th:text="${d.especialidad}"></td>
+                        <td><a class="btn btn-light" th:href="@{/sista/docentes(idCiclo=${idCiclo}, idCurso=${idCurso}, idDocente=${d.id_docente})}">Ver estudiantes</a></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(docentes)}"><td colspan="8">No hay docentes para este filtro.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card" style="padding:0;overflow-x:auto">
+                <h2 style="padding:12px 14px;margin:0;border-bottom:1px solid var(--line)"> Estudiantes del docente</h2>
+                <table>
+                    <thead><tr><th>Codigo</th><th>Nombres</th><th>Apellidos</th><th>Promedio</th><th>Estado</th></tr></thead>
+                    <tbody>
+                    <tr th:each="e : ${estudiantesDocente}">
+                        <td th:text="${e.codigo}"></td>
+                        <td th:text="${e.nombres}"></td>
+                        <td th:text="${e.apellidos}"></td>
+                        <td th:text="${e.promedio}"></td>
+                        <td th:text="${e.estado}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(estudiantesDocente)}"><td colspan="5">Seleccione un docente y curso para ver estudiantes.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

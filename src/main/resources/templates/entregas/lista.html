@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Entregas - EPIS</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="theme-objetos">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">Objetos perdidos</span>
+                <h1>Entrega de objetos</h1>
+                <p>Registro y seguimiento de entregas de objetos encontrados.</p>
+            </div>
+            <a class="btn" th:href="@{/objetos}" style="background:rgba(255,255,255,.15);color:white">↩ Volver</a>
+        </section>
+
+        <div class="message message-ok" th:if="${ok}" th:text="${ok}"></div>
+        <div class="message message-error" th:if="${error}" th:text="${error}"></div>
+
+        <div class="card">
+            <h2 style="margin-top:0"> Objetos pendientes de entrega</h2>
+            <div style="overflow-x:auto">
+                <table>
+                    <thead><tr><th>Codigo</th><th>Objeto</th><th>Ubicacion</th><th>Accion</th></tr></thead>
+                    <tbody><tr th:each="o : ${objetosPendientes}">
+                        <td th:text="${o.codigo}"></td><td th:text="${o.nombreObjeto}"></td><td th:text="${o.ubicacionTexto}"></td>
+                        <td><a class="btn btn-success" th:href="@{/entregas/nuevo/{id}(id=${o.idObjeto})}">Registrar entrega</a></td>
+                    </tr><tr th:if="${#lists.isEmpty(objetosPendientes)}"><td colspan="4">No hay objetos pendientes de entrega.</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0"> Historial de entregas</h2>
+            <div style="overflow-x:auto">
+                <table>
+                    <thead><tr><th>Objeto</th><th>Receptor</th><th>Tipo</th><th>Entrego</th><th>Fecha</th></tr></thead>
+                    <tbody><tr th:each="e : ${entregas}">
+                        <td><span th:text="${e.objeto != null ? e.objeto.codigo : 'Sin codigo'}"></span> - <span th:text="${e.objeto != null ? e.objeto.nombreObjeto : 'Objeto no disponible'}"></span></td>
+                        <td><span th:text="${e.nombreReceptor}"></span> <span th:text="${e.apellidosReceptor}"></span><br><span class="muted" style="font-size:12px" th:text="${e.documentoReceptor}"></span></td>
+                        <td th:text="${e.tipoReceptor}"></td>
+                        <td th:text="${e.usuarioEntrego != null ? e.usuarioEntrego.nombreCompleto : 'No disponible'}"></td>
+                        <td th:text="${#temporals.format(e.fechaEntrega, 'dd/MM/yyyy HH:mm')}"></td>
+                    </tr><tr th:if="${#lists.isEmpty(entregas)}"><td colspan="5">No hay entregas registradas.</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

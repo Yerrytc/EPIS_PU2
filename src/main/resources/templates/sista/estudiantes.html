@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudiantes - SISTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="theme-sista">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">SISTA</span>
+                <h1>Control de estudiantes</h1>
+                <p>Listado, busqueda y ficha academica del estudiante.</p>
+            </div>
+            <div class="actions">
+                <a class="btn" th:href="@{/sista}" style="background:rgba(255,255,255,.15);color:white">↩ Volver</a>
+            </div>
+        </section>
+
+        <form class="sista-toolbar" th:action="@{/sista/estudiantes}" method="get">
+            <div>
+                <label>Buscar por codigo, DNI, nombres o apellidos</label>
+                <input type="text" name="buscar" th:value="${buscar}" placeholder="Ej. 20230001 o Carlos">
+            </div>
+            <div class="actions" style="align-self:end">
+                <button class="btn" type="submit"> Buscar</button>
+                <a class="btn btn-secondary" th:href="@{/sista/estudiantes}">Refrescar</a>
+            </div>
+            <div style="align-self:end;font-weight:800;color:var(--module-primary)" th:text="'Total: ' + ${#lists.size(estudiantes)} + ' estudiantes'">Total</div>
+        </form>
+
+        <div class="card" style="padding:0;overflow-x:auto">
+            <table>
+                <thead>
+                <tr><th>Codigo</th><th>DNI</th><th>Nombres</th><th>Apellidos</th><th>F. Nac.</th><th>Telefono</th><th>Email</th><th>Direccion</th><th>Apoderado</th><th>Accion</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="e : ${estudiantes}">
+                    <td th:text="${e.codigo}"></td>
+                    <td th:text="${e.dni}"></td>
+                    <td th:text="${e.nombres}"></td>
+                    <td th:text="${e.apellidos}"></td>
+                    <td th:text="${e.fecha_nacimiento}"></td>
+                    <td th:text="${e.telefono}"></td>
+                    <td th:text="${e.email}"></td>
+                    <td th:text="${e.direccion}"></td>
+                    <td th:text="${e.nombre_apoderado}"></td>
+                    <td><a class="btn btn-light" th:href="@{/sista/estudiantes/{codigo}(codigo=${e.codigo})}">Ver ficha</a></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(estudiantes)}"><td colspan="10">No se encontraron estudiantes.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

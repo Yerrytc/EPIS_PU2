@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title th:text="${modo == 'editar'} ? 'Editar objeto' : 'Nuevo objeto'">Objeto - EPIS</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="theme-objetos">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">Objetos perdidos</span>
+                <h1 th:text="${modo == 'editar'} ? 'Modificar objeto' : 'Registrar objeto perdido'">Formulario</h1>
+                <p>Complete los datos del objeto encontrado.</p>
+            </div>
+            <a class="btn" th:href="@{/objetos}" style="background:rgba(255,255,255,.15);color:white">↩ Volver</a>
+        </section>
+
+        <div class="message message-error" th:if="${error}" th:text="${error}"></div>
+
+        <div class="card">
+            <form class="form" th:object="${objeto}" th:action="@{${formAction}}" method="post">
+                <div class="grid grid-2">
+                    <div><label>Codigo</label><input th:field="*{codigo}" required pattern="\d{4,20}" maxlength="20" inputmode="numeric" title="Codigo numerico minimo de 4 digitos"></div>
+                    <div><label>Fecha encontrado</label><input type="date" th:field="*{fechaEncontrado}" required></div>
+                </div>
+                <label>Nombre del objeto</label><input th:field="*{nombreObjeto}" required minlength="3" maxlength="100">
+                <label>Descripcion</label><textarea th:field="*{descripcion}" required minlength="5" maxlength="300"></textarea>
+                <div class="grid grid-2">
+                    <div><label>Persona que encontro</label><input th:field="*{personaEncontro}" required minlength="3" maxlength="120"></div>
+                    <div><label>Clase de objeto</label><select name="idClaseObjeto" required>
+                        <option th:each="c : ${clases}" th:value="${c.idClaseObjeto}" th:text="${c.nombreClase}" th:selected="${objeto.claseObjeto != null and objeto.claseObjeto.idClaseObjeto == c.idClaseObjeto}"></option>
+                    </select></div>
+                </div>
+                <div class="grid grid-2">
+                    <div><label>Tipo de ubicacion</label><select id="tipoUbicacion" name="tipoUbicacion" required onchange="actualizarUbicaciones()">
+                        <option value="AULA" th:selected="${objeto.aula != null or (objeto.aula == null and objeto.laboratorio == null and objeto.ambienteGeneral == null)}">Aula</option>
+                        <option value="LABORATORIO" th:selected="${objeto.laboratorio != null}">Laboratorio</option>
+                        <option value="AMBIENTE" th:selected="${objeto.ambienteGeneral != null}">Ambiente general</option>
+                    </select></div>
+                    <div>
+                        <label>Ubicacion</label>
+                        <select class="select-ubicacion" id="ubicacionAula" name="idUbicacion">
+                            <option th:each="a : ${aulas}" th:value="${a.idAula}" th:text="${a.nombreMostrar}" th:selected="${objeto.aula != null and objeto.aula.idAula == a.idAula}"></option>
+                        </select>
+                        <select class="select-ubicacion" id="ubicacionLaboratorio" name="idUbicacion">
+                            <option th:each="l : ${laboratorios}" th:value="${l.idLaboratorio}" th:text="${l.nombreMostrar}" th:selected="${objeto.laboratorio != null and objeto.laboratorio.idLaboratorio == l.idLaboratorio}"></option>
+                        </select>
+                        <select class="select-ubicacion" id="ubicacionAmbiente" name="idUbicacion">
+                            <option th:each="a : ${ambientes}" th:value="${a.idAmbiente}" th:text="${a.nombreMostrar}" th:selected="${objeto.ambienteGeneral != null and objeto.ambienteGeneral.idAmbiente == a.idAmbiente}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-2" th:if="${modo == 'editar'}" sec:authorize="hasRole('ADMIN')">
+                    <div>
+                        <label>Estado del objeto</label>
+                        <select th:field="*{estado}" required>
+                            <option value="No entregado">No entregado</option>
+                            <option value="Entregado">Entregado</option>
+                        </select>
+                        <small class="muted">Solo el administrador puede cambiar manualmente el estado.</small>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="btn" type="submit">Guardar</button>
+                    <a class="btn btn-secondary" th:href="@{/objetos}">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+<script>
+function actualizarUbicaciones(){
+  const tipo = document.getElementById('tipoUbicacion').value;
+  const aula = document.getElementById('ubicacionAula');
+  const lab = document.getElementById('ubicacionLaboratorio');
+  const amb = document.getElementById('ubicacionAmbiente');
+  [aula, lab, amb].forEach(s => { s.style.display='none'; s.disabled=true; });
+  if(tipo === 'AULA'){ aula.style.display='block'; aula.disabled=false; }
+  if(tipo === 'LABORATORIO'){ lab.style.display='block'; lab.disabled=false; }
+  if(tipo === 'AMBIENTE'){ amb.style.display='block'; amb.disabled=false; }
+}
+actualizarUbicaciones();
+</script>
+</body>
+</html>
+
+
+

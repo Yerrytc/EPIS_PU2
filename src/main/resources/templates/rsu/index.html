@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RSU - EPIS</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="theme-rsu">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">Gestion social</span>
+                <h1>Responsabilidad Social Universitaria</h1>
+                <p>Gestione proyectos, actividades, participantes y asistencias.</p>
+            </div>
+        </section>
+
+        <div class="message message-ok" th:if="${ok}" th:text="${ok}"></div>
+        <div class="message message-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="dashboard-stats">
+            <article class="kpi-card interactive-card" th:each="m : ${resumen}">
+                <div class="kpi-val" th:text="${m.value}">0</div>
+                <div class="kpi-lbl" th:text="${m.key}">Indicador</div>
+            </article>
+        </section>
+
+        <nav class="module-tabs">
+            <a href="#gestion-rsu"> Gestion</a>
+            <a href="#asistencias-lista"> Asistencias</a>
+        </nav>
+
+        <section class="module-dashboard-grid">
+            <article class="module-home-card">
+                <h2>Opciones disponibles</h2>
+                <div class="module-command-grid">
+                    <a class="module-command-card" href="#gestion-rsu"><strong>Proyectos</strong><span>Solicitud, aprobacion, objetivos, ODS y unidad EPIS responsable.</span><b>Crear/gestionar</b></a>
+                    <a class="module-command-card" href="#gestion-rsu"><strong>Actividades</strong><span>Planificacion de talleres, horas, fecha y ambiente.</span><b>Programar</b></a>
+                    <a class="module-command-card" href="#asistencias-lista"><strong>Asistencia</strong><span>Participantes, beneficiarios y horas reconocidas.</span><b>Controlar</b></a>
+                    <a class="module-command-card" href="#gestion-rsu"><strong>Evidencias</strong><span>Notas textuales, concursos, clausura y resultados finales.</span><b>Registrar</b></a>
+                </div>
+            </article>
+            <aside class="module-visual-card">
+                <h2>Resumen RSU</h2>
+                <p class="muted">Indicadores generales del módulo de Responsabilidad Social Universitaria.</p>
+            </aside>
+        </section>
+
+        <section id="gestion-rsu" class="accordion-grid">
+            <details class="panel-card" open>
+                <summary> Proyectos y actividades</summary>
+                <div class="panel-body">
+                    <div class="workbench-grid">
+                        <form class="form workbench-card" th:action="@{/rsu/proyecto}" method="post">
+                            <h3 style="margin-top:0">Registrar proyecto</h3>
+                            <label>Nombre</label><input name="nombre" required minlength="5" maxlength="180">
+                            <label>Tipo</label><select name="tipoProyecto"><option value="SERVICIO_SOCIAL_UNIVERSITARIO">Servicio Social Universitario</option><option value="RESPONSABILIDAD_SOCIAL">Responsabilidad Social</option><option value="VOLUNTARIADO">Voluntariado</option></select>
+                            <label>Objetivo</label><textarea name="objetivo" required minlength="10" maxlength="1000"></textarea>
+                            <label>Problema social</label><textarea name="problemaSocial" required minlength="10" maxlength="1000"></textarea>
+                            <label>ODS vinculados</label><input name="ods" placeholder="ODS 4, ODS 10" required minlength="3" maxlength="180">
+                            <label>Responsable</label><input name="responsable" required minlength="3" maxlength="120" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{3,120}" title="Solo letras y espacios">
+                            <label>Unidad EPIS responsable</label><input name="escuelaAliada" value="EPIS" maxlength="180">
+                            <div class="grid grid-2"><div><label>Inicio</label><input type="date" name="fechaInicio" required></div><div><label>Fin</label><input type="date" name="fechaFin" required></div></div>
+                            <button type="submit">Solicitar aprobacion</button>
+                        </form>
+                        <form class="form workbench-card" th:action="@{/rsu/actividad}" method="post">
+                            <h3 style="margin-top:0">Planificar actividad o taller</h3>
+                            <label>Proyecto</label><select name="idProyecto" required><option th:each="p : ${proyectos}" th:value="${p.id_proyecto}" th:text="${p.nombre}"></option></select>
+                            <div class="grid grid-2"><div><label>Fecha</label><input type="date" name="fecha" required></div><div><label>Hora</label><input type="time" name="hora" required></div></div>
+                            <label>Tema</label><input name="tema" required minlength="5" maxlength="180">
+                            <label>Actividad / cronograma</label><textarea name="descripcion" required minlength="10" maxlength="1000"></textarea>
+                            <div class="grid grid-2"><div><label>Duracion horas</label><input type="number" step="0.5" min="0.5" max="12" name="duracionHoras" required></div><div><label>Laboratorio o ambiente</label><input name="laboratorioAmbiente" required minlength="2" maxlength="120"></div></div>
+                            <button type="submit">Guardar actividad</button>
+                        </form>
+                    </div>
+                </div>
+            </details>
+            <details class="panel-card">
+                <summary> Participantes, beneficiarios y asistencia</summary>
+                <div class="panel-body">
+                    <div class="workbench-grid">
+                        <form class="form workbench-card" th:action="@{/rsu/participante}" method="post">
+                            <h3 style="margin-top:0">Participante</h3>
+                            <label>Proyecto</label><select name="idProyecto" required><option th:each="p : ${proyectos}" th:value="${p.id_proyecto}" th:text="${p.nombre}"></option></select>
+                            <label>Estudiante</label><select name="codigoEstudiante" required><option th:each="e : ${estudiantes}" th:value="${e.codigo}" th:text="${e.nombre}"></option></select>
+                            <label>Responsabilidad</label><select name="responsabilidad" required><option>Publicidad</option><option>Charlas</option><option>Monitoreo</option><option>Asistencia</option><option>Apoyo tecnico</option></select>
+                            <label>Horas cumplidas</label><input type="number" step="0.5" min="0" max="300" name="horasCumplidas" value="0" required>
+                            <button type="submit">Registrar</button>
+                        </form>
+                        <form class="form workbench-card" th:action="@{/rsu/beneficiario}" method="post">
+                            <h3 style="margin-top:0">Beneficiario / taller</h3>
+                            <label>Proyecto</label><select name="idProyecto" required><option th:each="p : ${proyectos}" th:value="${p.id_proyecto}" th:text="${p.nombre}"></option></select>
+                            <label>Nombres</label><input name="nombres" required minlength="3" maxlength="150">
+                            <label>Tipo beneficiario</label><input name="tipoBeneficiario" required minlength="3" maxlength="120">
+                            <label>Documento</label><input name="documento" pattern="(\d{8}|\d{11})" title="DNI de 8 digitos o RUC de 11 digitos">
+                            <label>Taller inscrito</label><input name="tallerInscrito" placeholder="Desarrollo web con IA" maxlength="180">
+                            <button type="submit">Registrar</button>
+                        </form>
+                        <form class="form workbench-card" th:action="@{/rsu/asistencia}" method="post">
+                            <h3 style="margin-top:0">Asistencia a taller</h3>
+                            <label>Actividad</label><select name="idActividad" required><option th:each="a : ${actividades}" th:value="${a.id_actividad}" th:text="${a.proyecto + ' - ' + a.tema}"></option></select>
+                            <label>Tipo asistente</label><select name="tipoAsistente" required><option>ESTUDIANTE</option><option>BENEFICIARIO</option></select>
+                            <label>Identificador</label><input name="identificador" required minlength="3" maxlength="100" title="Si es estudiante, ingrese codigo de 10 digitos">
+                            <label>Asistio</label><select name="asistio"><option value="true">Si</option><option value="false">No</option></select>
+                            <label>Horas reconocidas</label><input type="number" step="0.5" min="0" max="12" name="horasReconocidas" value="0" required>
+                            <button type="submit">Registrar</button>
+                        </form>
+                    </div>
+                </div>
+            </details>
+            <details class="panel-card">
+                <summary> Evidencia, concurso y clausura</summary>
+                <div class="panel-body">
+                    <div class="workbench-grid">
+                        <form class="form workbench-card" th:action="@{/rsu/evidencia}" method="post">
+                            <h3 style="margin-top:0">Evidencia textual</h3>
+                            <label>Proyecto</label><select name="idProyecto" required><option th:each="p : ${proyectos}" th:value="${p.id_proyecto}" th:text="${p.nombre}"></option></select>
+                            <label>Tipo evidencia</label><select name="tipoEvidencia"><option>Documento</option><option>Lista de asistencia</option><option>Producto elaborado</option><option>Informe</option></select>
+                            <label>Descripcion o enlace textual</label><textarea name="descripcion" required minlength="5" maxlength="255"></textarea>
+                            <button type="submit">Registrar evidencia</button>
+                        </form>
+                        <form class="form workbench-card" th:action="@{/rsu/concurso}" method="post">
+                            <h3 style="margin-top:0">Concurso / evaluacion</h3>
+                            <label>Proyecto</label><select name="idProyecto" required><option th:each="p : ${proyectos}" th:value="${p.id_proyecto}" th:text="${p.nombre}"></option></select>
+                            <label>Concurso</label><input name="nombre" required minlength="5" maxlength="150">
+                            <label>Criterios</label><input name="criterios" required minlength="10" maxlength="1000">
+                            <div class="grid grid-2"><div><label>Fecha</label><input type="date" name="fecha" required></div><div><label>Ganadores</label><input name="ganadores" required minlength="3" maxlength="1000"></div></div>
+                            <button type="submit">Registrar concurso</button>
+                        </form>
+                        <form class="form workbench-card" th:action="@{/rsu/proyecto/clausurar}" method="post">
+                            <h3 style="margin-top:0">Clausura</h3>
+                            <label>Proyecto</label><select name="idProyecto" required><option th:each="p : ${proyectos}" th:value="${p.id_proyecto}" th:text="${p.nombre}"></option></select>
+                            <label>Fecha clausura</label><input type="date" name="fechaClausura" required>
+                            <label>Resultados</label><textarea name="resultados" required minlength="10" maxlength="1000"></textarea>
+                            <button type="submit">Clausurar proyecto</button>
+                        </form>
+                    </div>
+                </div>
+            </details>
+        </section>
+
+        <section id="asistencias-lista" class="report-accordion" style="margin-top:16px">
+            <details class="panel-card" open><summary>Lista de asistencias a talleres</summary><div class="panel-body"><table class="compact-table"><thead><tr><th>Proyecto</th><th>Actividad</th><th>Tipo</th><th>Identificador</th><th>Asistio</th><th>Horas</th></tr></thead><tbody><tr th:each="a : ${asistencias}"><td th:text="${a.proyecto}"></td><td th:text="${a.tema}"></td><td th:text="${a.tipo_asistente}"></td><td th:text="${a.identificador}"></td><td><span class="badge" th:classappend="${a.asistio} ? ' badge-ok' : ' badge-warn'" th:text="${a.asistio} ? 'Si' : 'No'"></span></td><td th:text="${a.horas_reconocidas}"></td></tr><tr th:if="${#lists.isEmpty(asistencias)}"><td colspan="6">No hay asistencias registradas.</td></tr></tbody></table></div></details>
+        </section>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

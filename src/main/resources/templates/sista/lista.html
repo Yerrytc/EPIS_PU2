@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registros SISTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="theme-sista">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">SISTA</span>
+                <h1>Registros</h1>
+                <p>Consulte y administre los registros disponibles.</p>
+            </div>
+            <div class="actions">
+                <a class="btn" th:href="@{/sista/registros/nuevo}" style="background:rgba(255,255,255,.2);color:white"> Nuevo</a>
+                <a class="btn" th:href="@{/sista}" style="background:rgba(255,255,255,.15);color:white">↩ Volver</a>
+            </div>
+        </section>
+
+        <div th:if="${ok}" class="message message-ok" th:text="${ok}"></div>
+        <div th:if="${error}" class="message message-error" th:text="${error}"></div>
+
+        <div class="card" style="padding:0;overflow-x:auto">
+            <table>
+                <thead><tr><th>ID</th><th>Nombre</th><th>Descripcion</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${registros}">
+                    <td th:text="${r.id}"></td>
+                    <td th:text="${r.nombre}"></td>
+                    <td th:text="${r.descripcion}"></td>
+                    <td th:text="${r.fecha}"></td>
+                    <td class="actions">
+                        <a class="btn btn-light" th:href="@{/sista/registros/editar/{id}(id=${r.id})}">Editar</a>
+                        <a class="btn btn-danger" th:href="@{/sista/registros/eliminar/{id}(id=${r.id})}" onclick="return confirm('¿Eliminar registro?')">Eliminar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(registros)}"><td colspan="5">No hay registros.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

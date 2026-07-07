@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Configuracion SMTP - EPIS</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="theme-admin">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">Administracion</span>
+                <h1>Configuracion SMTP</h1>
+                <p>Configure el servidor de correo para envio de notificaciones del sistema.</p>
+            </div>
+            <a class="btn" th:href="@{/admin/usuarios}" style="background:rgba(255,255,255,.15);color:white">Volver a usuarios</a>
+        </section>
+
+        <div class="message message-ok" th:if="${ok}" th:text="${ok}"></div>
+        <div class="message message-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="module-dashboard-grid admin-catalog-summary">
+            <article class="module-home-card">
+                <h2>Opciones disponibles</h2>
+                <div class="module-command-grid">
+                    <a class="module-command-card" th:href="@{/admin/usuarios}"><strong>Usuarios y accesos</strong><span>Roles y cuentas institucionales.</span><b>Administrar</b></a>
+                    <a class="module-command-card" th:href="@{/admin/catalogos}"><strong>Catalogos</strong><span>Aulas, laboratorios y ambientes comunes.</span><b>Configurar</b></a>
+                    <a class="module-command-card" th:href="@{/admin/smtp}"><strong>SMTP / Correo</strong><span>Servidor de notificaciones del sistema.</span><b>Panel activo</b></a>
+                </div>
+            </article>
+            <aside class="module-visual-card">
+                <h2>Correo del sistema</h2>
+                <p class="muted">Esta configuracion se usa para alertas SISTA y notificaciones institucionales.</p>
+            </aside>
+        </section>
+
+        <div class="card">
+            <form class="form" th:action="@{/admin/smtp}" method="post">
+                <div class="grid grid-2">
+                    <div><label>Servidor SMTP</label><input name="smtpHost" th:value="${smtpHost}" required minlength="5" maxlength="120" placeholder="smtp.gmail.com"></div>
+                    <div><label>Puerto</label><input name="smtpPort" th:value="${smtpPort}" required type="number" min="1" max="65535" placeholder="587"></div>
+                </div>
+                <div class="grid grid-2">
+                    <div><label>Usuario</label><input type="email" name="smtpUsername" th:value="${smtpUsername}" required placeholder="correo@dominio.com"></div>
+                    <div><label>Contrasena</label><input type="password" name="smtpPassword" maxlength="255" placeholder="•••••••• (dejar vacio para mantener)"></div>
+                </div>
+                <div class="grid grid-2">
+                    <div><label>Correo remitente</label><input type="email" name="smtpFrom" th:value="${smtpFrom}" required placeholder="notificaciones@upt.pe"></div>
+                    <div><label>Usar TLS</label><select name="smtpTls"><option value="true" th:selected="${smtpTls == 'true'}">Si</option><option value="false" th:selected="${smtpTls == 'false'}">No</option></select></div>
+                </div>
+                <div class="actions">
+                    <button class="btn" type="submit">Guardar configuracion</button>
+                    <a class="btn btn-secondary" th:href="@{/admin/usuarios}">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - EPIS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="theme-dashboard">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content dashboard-main">
+
+        <!-- Vista especial para ALUMNO: solo datos generales del estudiante y objetos perdidos -->
+        <div sec:authorize="hasRole('ALUMNO')">
+            <section class="page-hero">
+                <div>
+                    <span class="eyebrow">Panel del estudiante</span>
+                    <h1 th:text="${estudianteActual != null ? estudianteActual.nombreCompleto : 'Estudiante'}">Estudiante</h1>
+                    <p>Datos generales del estudiante y acceso al modulo de objetos perdidos.</p>
+                </div>
+            </section>
+
+            <section class="dashboard-stats" aria-label="Datos generales del estudiante">
+                <article class="kpi-card interactive-card">
+                    <div class="kpi-lbl">Codigo de alumno</div>
+                    <div class="kpi-val" style="font-size:18px;" th:text="${estudianteActual != null && estudianteActual.codigoAlumno != null ? estudianteActual.codigoAlumno : 'No registrado'}">2023078888</div>
+                </article>
+                <article class="kpi-card interactive-card">
+                    <div class="kpi-lbl">DNI / documento</div>
+                    <div class="kpi-val" style="font-size:18px;" th:text="${estudianteActual != null ? estudianteActual.documento : 'No registrado'}">75677777</div>
+                </article>
+                <article class="kpi-card interactive-card">
+                    <div class="kpi-lbl">Correo institucional</div>
+                    <div class="kpi-val" style="font-size:15px;" th:text="${estudianteActual != null ? estudianteActual.email : 'estudiante@virtual.upt.pe'}">estudiante@virtual.upt.pe</div>
+                </article>
+                <article class="kpi-card interactive-card">
+                    <div class="kpi-lbl">Telefono</div>
+                    <div class="kpi-val" style="font-size:18px;" th:text="${estudianteActual != null && estudianteActual.telefono != null ? estudianteActual.telefono : 'No registrado'}">999999999</div>
+                </article>
+            </section>
+
+            <section class="dashboard-grid-main">
+                <div>
+                    <section class="module-grid" aria-label="Modulo disponible para estudiante">
+                        <a class="module-card" th:href="@{/objetos}">
+                            <div class="module-icon">OBJ</div>
+                            <strong>Objetos perdidos</strong>
+                            <small>Registrar objetos encontrados y consultar objetos perdidos dentro de la universidad.</small>
+                            <span class="module-action">Ingresar &gt;</span>
+                        </a>
+                    </section>
+                </div>
+
+                <aside class="dashboard-side-info">
+                    <section class="card dashboard-alerts-card">
+                        <h2 class="side-card-title">Permisos del estudiante</h2>
+                        <div class="activity-row">
+                            <span class="activity-copy">
+                                <strong>Registrar objeto encontrado</strong>
+                                <small>Disponible</small>
+                            </span>
+                            <b>SI</b>
+                        </div>
+                        <div class="activity-row">
+                            <span class="activity-copy">
+                                <strong>Consultar objetos perdidos</strong>
+                                <small>Disponible</small>
+                            </span>
+                            <b>SI</b>
+                        </div>
+                        <div class="activity-row">
+                            <span class="activity-copy">
+                                <strong>Modificar, entregar o eliminar</strong>
+                                <small>Reservado para personal autorizado</small>
+                            </span>
+                            <b>NO</b>
+                        </div>
+                    </section>
+                </aside>
+            </section>
+        </div>
+
+        <!-- Vista administrativa para ADMIN, TUTOR y DOCENTE -->
+        <div sec:authorize="!hasRole('ALUMNO')">
+            <section class="page-hero">
+                <div>
+                    <span class="eyebrow">Resumen</span>
+                    <h1>Informacion general</h1>
+                    <p>Indicadores, avisos y accesos disponibles segun su perfil.</p>
+                </div>
+            </section>
+
+            <section class="dashboard-stats" aria-label="Indicadores generales">
+                <article class="kpi-card interactive-card" th:each="m : ${metricas}">
+                    <div class="kpi-val" th:text="${m.value}">0</div>
+                    <div class="kpi-lbl" th:text="${m.key}">Indicador</div>
+                </article>
+            </section>
+
+            <section class="dashboard-grid-main">
+                <div>
+                    <section class="module-grid" aria-label="Subsistemas EPIS">
+                        <a class="module-card" th:each="m : ${modulos}" th:href="@{${m.rutaBase}}">
+                            <div class="module-icon" th:text="${m.codigo}">MOD</div>
+                            <strong th:text="${m.nombre}">Modulo</strong>
+                            <small th:text="${m.descripcion}">Descripcion del modulo</small>
+                            <span class="module-action">Ingresar &gt;</span>
+                        </a>
+                    </section>
+                </div>
+
+                <aside class="dashboard-side-info">
+                    <section class="card dashboard-alerts-card">
+                        <h2 class="side-card-title">Avisos pendientes</h2>
+                        <a class="activity-row" th:each="a : ${actividadOperativa}" th:href="@{${a.ruta}}">
+                            <span class="activity-copy">
+                                <strong th:text="${a.tipo}">Alerta</strong>
+                                <small th:text="${a.modulo}">Modulo</small>
+                            </span>
+                            <b th:text="${a.total}">0</b>
+                        </a>
+                    </section>
+                    <section class="card">
+                        <h2 style="font-size:14px;margin:0 0 8px;">Ultimos movimientos</h2>
+                        <a class="movement-row" th:each="m : ${ultimosMovimientos}" th:href="@{${m.ruta}}">
+                            <strong th:text="${m.evento}">Evento</strong>
+                            <span th:text="${m.detalle}">Detalle</span>
+                            <small th:text="${m.fecha}">Fecha</small>
+                        </a>
+                    </section>
+                </aside>
+            </section>
+        </div>
+    </main>
+</div>
+
+<aside class="settings-drawer" id="settingsDrawer" aria-hidden="true">
+    <div class="settings-panel">
+        <button type="button" class="settings-close btn-light ui-toggle" data-ui-action="settings">Cerrar</button>
+        <span class="eyebrow">Preferencias</span>
+        <h2 style="margin:4px 0;">Tema visual</h2>
+        <p class="muted">Elija el modo visual que prefiera.</p>
+        <div class="settings-actions">
+            <button type="button" class="btn-light ui-toggle" data-ui-action="contrast">Modo oscuro</button>
+        </div>
+        <hr>
+        <p sec:authorize="hasAnyRole('ADMIN','TUTOR')"><strong>Correo de alertas SISTA:</strong> <span th:text="${correoAlertas}">tutoria@upt.edu.pe</span></p>
+        <a class="btn" sec:authorize="hasAnyRole('ADMIN','TUTOR')" th:href="@{/sista}">Configurar alertas</a>
+    </div>
+</aside>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

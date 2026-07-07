@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Zonas y catalogos - EPIS</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="theme-admin">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">Administracion</span>
+                <h1>Catalogos institucionales</h1>
+                <p>Administre ambientes, aulas, laboratorios y tipos de objetos.</p>
+            </div>
+            <a class="btn" th:href="@{/admin/usuarios}" style="background:rgba(255,255,255,.15);color:white">Volver a usuarios</a>
+        </section>
+
+        <div class="message message-ok" th:if="${ok}" th:text="${ok}"></div>
+        <div class="message message-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="module-dashboard-grid admin-catalog-summary">
+            <article class="module-home-card">
+                <h2>Opciones disponibles</h2>
+                <div class="module-command-grid">
+                    <a class="module-command-card" th:href="@{/admin/catalogos}"><strong>Zonas institucionales</strong><span>Aulas, laboratorios y ambientes comunes.</span><b>Panel activo</b></a>
+                    <a class="module-command-card" th:href="@{/admin/usuarios}"><strong>Usuarios y accesos</strong><span>Roles y cuentas institucionales.</span><b>Administrar</b></a>
+                    <a class="module-command-card" th:href="@{/admin/smtp}"><strong>SMTP / Correo</strong><span>Servidor de notificaciones del sistema.</span><b>Configurar</b></a>
+                </div>
+            </article>
+            <aside class="module-visual-card">
+                <h2>Resumen</h2>
+                <div class="module-insight-list">
+                    <div class="module-insight"><span class="icon">AU</span><span><strong>Aulas</strong><span>Zonas academicas</span></span><b th:text="${#lists.size(aulas)}">0</b></div>
+                    <div class="module-insight"><span class="icon">LB</span><span><strong>Laboratorios</strong><span>Espacios especializados</span></span><b th:text="${#lists.size(laboratorios)}">0</b></div>
+                    <div class="module-insight"><span class="icon">AM</span><span><strong>Ambientes</strong><span>Zonas generales</span></span><b th:text="${#lists.size(ambientes)}">0</b></div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="workbench-grid catalog-admin-grid">
+            <article class="workbench-card">
+                <h3>Catalogo operativo</h3>
+                <form class="form" th:action="@{/admin/catalogos/clase}" method="post">
+                    <label>Nombre del catalogo</label>
+                    <input name="nombreClase" required minlength="3" maxlength="50" placeholder="Ej. Dispositivo electronico">
+                    <button class="btn" type="submit">Guardar catalogo</button>
+                </form>
+                <div class="catalog-list">
+                    <span th:each="c:${clases}" th:text="${c.nombreClase}">Catalogo</span>
+                </div>
+            </article>
+
+            <article class="workbench-card">
+                <h3>Ambiente general</h3>
+                <form class="form" th:action="@{/admin/catalogos/ambiente}" method="post">
+                    <label>Nombre del ambiente</label>
+                    <input name="nombreAmbiente" required minlength="3" maxlength="100" placeholder="Ej. Biblioteca central">
+                    <label>Tipo</label>
+                    <select name="tipoAmbiente">
+                        <option>Cancha</option><option>Auditorio</option><option>Biblioteca</option><option>Sala</option><option>Patio</option><option>Administracion</option><option>Otro</option>
+                    </select>
+                    <button class="btn" type="submit">Guardar ambiente</button>
+                </form>
+                <div class="catalog-list">
+                    <span th:each="a:${ambientes}" th:text="${a.nombreMostrar}">Ambiente</span>
+                </div>
+            </article>
+
+            <article class="workbench-card">
+                <h3>Zona de aula</h3>
+                <form class="form" th:action="@{/admin/catalogos/aula}" method="post">
+                    <label>EPIS</label>
+                    <select name="idEscuela" required><option th:each="e:${escuelas}" th:value="${e.idEscuela}" th:text="${e.nombreEscuela}"></option></select>
+                    <label>Codigo</label>
+                    <input name="codigoAula" required minlength="2" maxlength="20" pattern="[A-Za-z0-9-]{2,20}" placeholder="Ej. A-204">
+                    <label>Descripcion</label>
+                    <input name="descripcion" maxlength="150" placeholder="Referencia o pabellon">
+                    <button class="btn" type="submit">Guardar aula</button>
+                </form>
+                <div class="catalog-list">
+                    <span th:each="a:${aulas}" th:text="${a.nombreMostrar}">Aula</span>
+                </div>
+            </article>
+
+            <article class="workbench-card">
+                <h3>Zona de laboratorio</h3>
+                <form class="form" th:action="@{/admin/catalogos/laboratorio}" method="post">
+                    <label>EPIS</label>
+                    <select name="idEscuela" required><option th:each="e:${escuelas}" th:value="${e.idEscuela}" th:text="${e.nombreEscuela}"></option></select>
+                    <label>Codigo</label>
+                    <input name="codigoLaboratorio" required minlength="2" maxlength="20" pattern="[A-Za-z0-9-]{2,20}" placeholder="Ej. LAB-03">
+                    <label>Descripcion</label>
+                    <input name="descripcion" maxlength="150" placeholder="Equipamiento o referencia">
+                    <button class="btn" type="submit">Guardar laboratorio</button>
+                </form>
+                <div class="catalog-list">
+                    <span th:each="l:${laboratorios}" th:text="${l.nombreMostrar}">Laboratorio</span>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

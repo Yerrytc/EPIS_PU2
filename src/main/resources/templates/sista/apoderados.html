@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoderados - SISTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="theme-sista">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">SISTA</span>
+                <h1>Control de apoderados</h1>
+                <p>Busqueda por DNI, filtro por parentesco y mantenimiento de apoderados.</p>
+            </div>
+            <div class="actions">
+                <a class="btn" th:href="@{/sista/apoderados/nuevo}" style="background:rgba(255,255,255,.2);color:white"> Agregar</a>
+                <a class="btn" th:href="@{/sista}" style="background:rgba(255,255,255,.15);color:white">↩ Volver</a>
+            </div>
+        </section>
+
+        <div th:if="${ok}" class="message message-ok" th:text="${ok}"></div>
+        <div th:if="${error}" class="message message-error" th:text="${error}"></div>
+
+        <form class="sista-toolbar" th:action="@{/sista/apoderados}" method="get">
+            <div>
+                <label>Parentesco</label>
+                <select name="parentesco">
+                    <option value="">-- Todos --</option>
+                    <option th:each="p : ${parentescos}" th:value="${p}" th:text="${p}" th:selected="${p == parentesco}"></option>
+                </select>
+            </div>
+            <div>
+                <label>DNI</label>
+                <input type="text" name="dni" th:value="${dni}" placeholder="Ingrese DNI">
+            </div>
+            <div class="actions" style="align-self:end">
+                <button class="btn" type="submit"> Buscar</button>
+                <a class="btn btn-secondary" th:href="@{/sista/apoderados}">Refrescar</a>
+            </div>
+        </form>
+
+        <div class="card" style="padding:0;overflow-x:auto">
+            <table>
+                <thead><tr><th>ID</th><th>DNI</th><th>Nombres</th><th>Apellidos</th><th>Telefono</th><th>Email</th><th>Direccion</th><th>Parentesco</th><th>Apoderado de</th><th>Accion</th></tr></thead>
+                <tbody>
+                <tr th:each="a : ${apoderados}">
+                    <td th:text="${a.id_apoderado}"></td>
+                    <td th:text="${a.dni}"></td>
+                    <td th:text="${a.nombres}"></td>
+                    <td th:text="${a.apellidos}"></td>
+                    <td th:text="${a.telefono}"></td>
+                    <td th:text="${a.email}"></td>
+                    <td th:text="${a.direccion}"></td>
+                    <td th:text="${a.parentesco}"></td>
+                    <td th:text="${a.estudiantes_asociados}"></td>
+                    <td><a class="btn btn-light" th:href="@{/sista/apoderados/editar/{id}(id=${a.id_apoderado})}">Modificar</a></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(apoderados)}"><td colspan="10">No se encontraron apoderados.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoria - EPIS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="theme-tutoria">
+<div th:replace="layout/header :: header"></div>
+<div class="app-shell">
+    <div th:replace="layout/sidebar :: sidebar"></div>
+    <main class="content">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">Modulo academico</span>
+                <h1>Tutoria Academica</h1>
+                <p>Gestione seguimiento, citaciones y justificaciones academicas.</p>
+            </div>
+        </section>
+
+        <div class="message message-ok" th:if="${ok}" th:text="${ok}"></div>
+        <div class="message message-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="dashboard-stats" th:if="${!esAlumno}">
+            <article class="kpi-card interactive-card" th:each="m : ${resumen}">
+                <div class="kpi-val" th:text="${m.value}">0</div>
+                <div class="kpi-lbl" th:text="${m.key}">Indicador</div>
+            </article>
+        </section>
+
+        <nav class="module-tabs" th:if="${!esAlumno}">
+            <a href="#gestion"> Gestion</a>
+            <a href="#consulta"> Consulta de notas</a>
+        </nav>
+
+        <section class="module-dashboard-grid" th:if="${!esAlumno}">
+            <article class="module-home-card">
+                <h2>Opciones disponibles</h2>
+                <div class="module-command-grid">
+                    <a class="module-command-card" href="#gestion"><strong>Seguimiento</strong><span>Registra riesgo academico, becados y matriculas criticas.</span><b>Gestionar</b></a>
+                    <a class="module-command-card" href="#gestion"><strong>Citacion y entrevista</strong><span>Agenda atencion y documenta acuerdos con el alumno.</span><b>Atender</b></a>
+                    <a class="module-command-card" href="#gestion"><strong>Justificaciones</strong><span>Revisa las justificaciones enviadas por los alumnos.</span><b>Revisar</b></a>
+                    <a class="module-command-card" href="#consulta"><strong>Consulta academica</strong><span>Busca notas actuales e historial por codigo de estudiante.</span><b>Consultar</b></a>
+                </div>
+            </article>
+            <aside class="module-visual-card">
+                <h2>Resumen de tutoria</h2>
+                <p class="muted">Indicadores generales del módulo de Tutoría Académica.</p>
+            </aside>
+        </section>
+
+        <section class="card" th:if="${esAlumno}">
+            <h2 style="margin-top:0"> Justificar inasistencia</h2>
+            <p class="muted" th:if="${alumnoActual != null}" th:text="'Alumno: ' + ${alumnoActual.nombre} + ' | Codigo: ' + ${alumnoActual.codigo}"></p>
+            <p class="message message-error" th:if="${alumnoActual == null}">Tu usuario no tiene codigo de alumno asociado. Solicita actualizacion al administrador.</p>
+            <form class="form" th:if="${alumnoActual != null}" th:action="@{/tutoria/justificacion}" method="post">
+                <input type="hidden" name="codigoEstudiante" th:value="${alumnoActual.codigo}">
+                <div class="grid grid-2">
+                    <div><label>Curso</label><select name="idCurso" required><option th:each="c : ${cursos}" th:value="${c.id_curso}" th:text="${c.nombre}"></option></select></div>
+                    <div><label>Docente</label><select name="idDocente" required><option th:each="d : ${docentes}" th:value="${d.id_docente}" th:text="${d.nombre}"></option></select></div>
+                </div>
+                <div class="grid grid-2"><div><label>Fecha de reincorporacion</label><input type="date" name="fechaReincorporacion" required></div><div><label>Fecha de presentacion</label><input type="date" name="fechaPresentacion" required></div></div>
+                <div class="grid grid-2"><div><label>Dias faltados</label><input type="number" name="diasFaltados" min="1" max="30" value="1" required></div><div><label>Sustento textual</label><input name="evidencia" placeholder="Descripcion breve del sustento" maxlength="255"></div></div>
+                <label>Motivo</label><textarea name="motivo" required minlength="10" maxlength="1000"></textarea>
+                <button type="submit">Enviar justificacion a tutoria</button>
+            </form>
+        </section>
+
+        <section class="card" th:if="${esAlumno}">
+            <h2 style="margin-top:0"> Mis justificaciones</h2>
+            <div style="overflow-x:auto">
+                <table><thead><tr><th>Curso</th><th>Dias</th><th>Plazo</th><th>Revision tutora</th><th>Observacion</th></tr></thead><tbody><tr th:each="j : ${misJustificaciones}"><td th:text="${j.curso}"></td><td th:text="${j.dias_faltados}"></td><td th:text="${j.estado}"></td><td><span class="badge" th:classappend="${j.estado_revision == 'APROBADO'} ? ' badge-ok' : (${j.estado_revision == 'RECHAZADO'} ? ' badge-warn' : '')" th:text="${j.estado_revision}"></span></td><td th:text="${j.observacion_revision}"></td></tr><tr th:if="${#lists.isEmpty(misJustificaciones)}"><td colspan="5">Aun no registraste justificaciones.</td></tr></tbody></table>
+            </div>
+        </section>
+
+        <section id="gestion" class="accordion-grid" th:if="${!esAlumno}">
+            <details class="panel-card" open>
+                <summary> Registrar seguimiento</summary>
+                <div class="panel-body">
+                    <form class="form" th:action="@{/tutoria/seguimiento}" method="post">
+                        <div class="grid grid-2">
+                            <div><label>Estudiante</label><select name="codigoEstudiante" required><option th:each="e : ${estudiantes}" th:value="${e.codigo}" th:text="${e.nombre}"></option></select></div>
+                            <div><label>Motivo</label><input name="motivo" placeholder="Riesgo academico, becado, tercera matricula" required minlength="5" maxlength="255"></div>
+                        </div>
+                        <div class="grid grid-3"><div><label>Tipo</label><select name="tipoSeguimiento"><option>RIESGO_ACADEMICO</option><option>BECADO</option><option>TERCERA_MATRICULA</option><option>CUARTA_MATRICULA</option><option>SITUACION_ESPECIAL</option></select></div><div><label>Unidad</label><select name="unidadAcademica"><option>1</option><option>2</option><option>3</option></select></div><div><label>Estado</label><select name="estado"><option>ABIERTO</option><option>EN_SEGUIMIENTO</option><option>CERRADO</option></select></div></div>
+                        <div class="grid grid-2"><div><label>Refuerzo positivo</label><input name="observacionPositiva" placeholder="Opcional" maxlength="500"></div><div><label>Advertencia academica</label><input name="advertenciaAcademica" placeholder="Opcional" maxlength="500"></div></div>
+                        <button type="submit">Guardar seguimiento</button>
+                        </form>
+                </div>
+            </details>
+
+            <details class="panel-card">
+                <summary> Citacion y entrevista</summary>
+                <div class="panel-body">
+                    <div class="grid grid-2">
+                        <form class="form" th:action="@{/tutoria/citacion}" method="post">
+                            <h3 style="margin-top:0">Citar estudiante</h3>
+                            <label>Estudiante</label><select name="codigoEstudiante" required><option th:each="e : ${estudiantes}" th:value="${e.codigo}" th:text="${e.nombre}"></option></select>
+                            <label>Fecha de citacion</label><input type="date" name="fechaCitacion" required>
+                            <label>Motivo</label><input name="motivo" required minlength="5" maxlength="255">
+                            <label>Estado</label><select name="estado"><option>PENDIENTE</option><option>ATENDIDO</option><option>REPROGRAMADO</option></select>
+                            <button type="submit">Registrar citacion</button>
+                        </form>
+                        <form class="form" th:action="@{/tutoria/entrevista}" method="post">
+                            <h3 style="margin-top:0">Registrar entrevista</h3>
+                            <label>Estudiante</label><select name="codigoEstudiante" required><option th:each="e : ${estudiantes}" th:value="${e.codigo}" th:text="${e.nombre}"></option></select>
+                            <label>Fecha</label><input type="date" name="fecha" required>
+                            <label>Problemas detectados</label><textarea name="problemasDetectados" required minlength="10" maxlength="1000"></textarea>
+                            <label>Observaciones</label><textarea name="observaciones" required minlength="10" maxlength="1000"></textarea>
+                            <label>Recomendaciones</label><textarea name="recomendaciones" required minlength="10" maxlength="1000"></textarea>
+                            <label>Derivacion</label><select name="derivacionArea"><option value="">Sin derivacion</option><option>PSICOLOGIA</option><option>MEDICO</option><option>ASISTENTE_SOCIAL</option></select>
+                            <button type="submit">Registrar entrevista</button>
+                        </form>
+                    </div>
+                </div>
+            </details>
+
+            <details class="panel-card">
+                <summary> Justificaciones</summary>
+                <div class="panel-body">
+                    <form class="form" th:action="@{/tutoria/justificacion}" method="post">
+                            <h3 style="margin-top:0">Enviar justificacion</h3>
+                            <label>Estudiante</label><select name="codigoEstudiante" required><option th:each="e : ${estudiantes}" th:value="${e.codigo}" th:text="${e.nombre}"></option></select>
+                            <label>Curso</label><select name="idCurso" required><option th:each="c : ${cursos}" th:value="${c.id_curso}" th:text="${c.nombre}"></option></select>
+                            <label>Docente</label><select name="idDocente" required><option th:each="d : ${docentes}" th:value="${d.id_docente}" th:text="${d.nombre}"></option></select>
+                            <div class="grid grid-2"><div><label>Reincorporacion</label><input type="date" name="fechaReincorporacion" required></div><div><label>Presentacion</label><input type="date" name="fechaPresentacion" required></div></div>
+                            <label>Dias faltados</label><input type="number" name="diasFaltados" min="1" max="30" value="1" required>
+                            <label>Motivo</label><input name="motivo" required minlength="5" maxlength="255">
+                            <label>Sustento textual</label><input name="evidencia" placeholder="Descripcion breve del sustento" maxlength="255">
+                            <button type="submit">Registrar y notificar</button>
+                        </form>
+                    </div>
+                </div>
+            </details>
+
+            <details class="panel-card">
+                <summary> Charlas y comunicados</summary>
+                <div class="panel-body">
+                    <div class="grid grid-2">
+                        <form class="form" th:action="@{/tutoria/charla}" method="post">
+                            <h3 style="margin-top:0">Charla de tutoria</h3>
+                            <label>Titulo</label><input name="titulo" required minlength="5" maxlength="180">
+                            <label>Tema</label><select name="tema"><option>Servicios universitarios</option><option>Acreditacion</option><option>Microsoft Office 365</option><option>Resiliencia</option><option>Trabajo en equipo</option><option>Plataformas institucionales</option></select>
+                            <label>Ciclos dirigidos</label><input name="ciclosDirigidos" value="Primer y segundo ciclo" required minlength="3" maxlength="120">
+                            <label>Fecha</label><input type="date" name="fecha" required>
+                            <label>Responsable</label><input name="responsable" required minlength="3" maxlength="120" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{3,120}" title="Solo letras y espacios">
+                            <button type="submit">Registrar charla</button>
+                        </form>
+                        <form class="form" th:action="@{/tutoria/comunicado}" method="post">
+                            <h3 style="margin-top:0">Comunicado institucional</h3>
+                            <label>Titulo</label><input name="titulo" required minlength="5" maxlength="180">
+                            <label>Mensaje</label><textarea name="mensaje" required minlength="10" maxlength="2000"></textarea>
+                            <label>Fecha</label><input type="date" name="fecha" required>
+                            <label>Destinatarios</label><input name="destinatarios" value="Estudiantes" required minlength="3" maxlength="120">
+                            <button type="submit">Registrar y notificar</button>
+                        </form>
+                    </div>
+                </div>
+            </details>
+        </section>
+
+        <section id="consulta" class="card" th:if="${!esAlumno}" style="margin-top:16px">
+            <div class="section-title-row" style="display:flex;justify-content:space-between;align-items:start">
+                <div><h2 style="margin:0"> Consulta academica por codigo</h2><p class="muted">Visualiza cursos, notas actuales e historial del estudiante.</p></div>
+            </div>
+            <form class="form" style="display:grid;grid-template-columns:minmax(240px,420px) auto;align-items:end;gap:12px" th:action="@{/tutoria/consulta-notas}" method="get">
+                <input name="codigoEstudiante" th:value="${codigoConsulta}" placeholder="Ejemplo: 2023078888" required pattern="\d{10}" maxlength="10" inputmode="numeric" title="Codigo de estudiante de 10 digitos">
+                <button type="submit">Consultar</button>
+            </form>
+            <div class="grid grid-2" style="margin-top:16px" th:if="${codigoConsulta != null}">
+                <article>
+                    <h3>Notas actuales</h3>
+                    <div style="overflow-x:auto">
+                        <table><thead><tr><th>Curso</th><th>U1</th><th>U2</th><th>U3</th><th>Prom.</th><th>Estado</th></tr></thead><tbody><tr th:each="n : ${notasConsulta}"><td th:text="${n.curso}"></td><td th:text="${n.unidad1}"></td><td th:text="${n.unidad2}"></td><td th:text="${n.unidad3}"></td><td th:text="${n.promedio}"></td><td th:text="${n.estado}"></td></tr><tr th:if="${#lists.isEmpty(notasConsulta)}"><td colspan="6">No hay notas registradas.</td></tr></tbody></table>
+                    </div>
+                </article>
+                <article>
+                    <h3>Historial de notas</h3>
+                    <div style="overflow-x:auto">
+                        <table><thead><tr><th>Periodo</th><th>Curso</th><th>Prom.</th><th>Estado</th></tr></thead><tbody><tr th:each="h : ${historialNotas}"><td th:text="${h.periodo}"></td><td th:text="${h.curso}"></td><td th:text="${h.promedio}"></td><td th:text="${h.estado}"></td></tr><tr th:if="${#lists.isEmpty(historialNotas)}"><td colspan="4">Sin historial registrado.</td></tr></tbody></table>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+<div th:replace="layout/footer :: footer"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
+
+

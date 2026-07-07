@@ -1,0 +1,17 @@
+<aside class="sidebar" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="sidebar">
+    <div class="sidebar-brand">
+        <strong>EPIS</strong>
+        <span>ING. SISTEMAS</span>
+    </div>
+    <a th:href="@{/dashboard}" sec:authorize="!hasRole('ALUMNO')">Panel general</a>
+    <a th:href="@{/dashboard}" sec:authorize="hasRole('ALUMNO')">Panel del estudiante</a>
+    <a th:href="@{/sista}" sec:authorize="hasAnyRole('ADMIN','TUTOR')">SISTA</a>
+    <a th:href="@{/objetos}">Objetos perdidos</a>
+    <a th:href="@{/tutoria}" sec:authorize="hasAnyRole('ADMIN','TUTOR')">Tutoria</a>
+    <a th:href="@{/rsu}" sec:authorize="hasAnyRole('ADMIN','TUTOR')">RSU</a>
+    <a th:href="@{/admin/usuarios}" sec:authorize="hasRole('ADMIN')">Administracion EPIS</a>
+    <div class="nav-spacer"></div>
+    <form th:action="@{/logout}" method="post">
+        <button class="logout-link" type="submit">Cerrar sesion</button>
+    </form>
+</aside>
