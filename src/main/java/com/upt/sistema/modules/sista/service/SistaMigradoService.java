@@ -111,7 +111,7 @@ public class SistaMigradoService {
                     FROM tutoria_inasistencia i
                     JOIN estudiante e ON i.codigo_estudiante = e.codigo
                 ),
-                groups AS (
+                grupos AS (
                     SELECT codigo_estudiante, nombre_estudiante, fecha,
                            DATE_SUB(fecha, INTERVAL rn DAY) AS grp
                     FROM ordered
@@ -121,7 +121,7 @@ public class SistaMigradoService {
                        COUNT(*) AS inasistencias_consecutivas,
                        MIN(fecha) AS fecha_inicio,
                        MAX(fecha) AS fecha_fin
-                FROM groups
+                FROM grupos
                 GROUP BY codigo_estudiante, grp
                 HAVING COUNT(*) >= 3
                 ORDER BY fecha_inicio DESC
